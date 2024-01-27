@@ -1,4 +1,3 @@
-
 package src
 
 import (
@@ -25,13 +24,13 @@ func displayMessage(prefix string, msg displayStr, colorFunc func(format string,
 			fmt.Printf("\n%s: %s\n%s\n", prefix, msg.Main, msg.Extra)
 		}
 	}
-  if !flagsPassed.Verbose && !flagsPassed.Quiet {
+	if !flagsPassed.Verbose && !flagsPassed.Quiet {
 		if canSupportColour() {
 			colorFunc("\n%s: %s\n", prefix, msg.Main)
 		} else {
 			fmt.Printf("\n%s: %s\n", prefix, msg.Main)
 		}
-  }
+	}
 }
 
 func infoDisplay(msg displayStr) {
@@ -45,4 +44,3 @@ func errorDisplay(msg displayStr) {
 func successDisplay(msg displayStr) {
 	displayMessage("Success", msg, color.HiGreen)
 }
-

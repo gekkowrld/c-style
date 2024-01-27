@@ -9,8 +9,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-
-
 var rootCmd = &cobra.Command{
 	Use:   "betty",
 	Short: "A coding style by Holberton School",
@@ -28,7 +26,5 @@ func Execute() {
 }
 
 func init() {
-  rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
+	rootCmd.Root().CompletionOptions.DisableDefaultCmd = true
 }
-
-

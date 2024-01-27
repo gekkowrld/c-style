@@ -24,14 +24,14 @@ func bracesPlacement(filename string) {
 		containsBrace := bracesRegex.MatchString(lineContent)
 		if containsBrace {
 			if isLoneBracket(lineContent) {
-        continue
+				continue
 			}
-        _, err := handleDoWhile(lineContent)
-        if err != nil {
-        err_msg.Main = fmt.Sprintf("At line %d -> %v", line_number, err)
-          errorDisplay(err_msg)
-        continue
-      }
+			_, err := handleDoWhile(lineContent)
+			if err != nil {
+				err_msg.Main = fmt.Sprintf("At line %d -> %v", line_number, err)
+				errorDisplay(err_msg)
+				continue
+			}
 
 		}
 	}
@@ -53,7 +53,6 @@ func isLoneBracket(lineContent string) bool {
 	return false
 }
 
-
 func handleDoWhile(lineContent string) (bool, error) {
 	var errMsg error
 	doWhileLineRegex := regexp.MustCompile(`^\s*do\s*\{`)
@@ -63,7 +62,7 @@ func handleDoWhile(lineContent string) (bool, error) {
 	}
 
 	// Check if 'while' is on the same line as the closing brace
-  // Will never be called, should check up on it though
+	// Will never be called, should check up on it though
 	endWhileLoopReg := regexp.MustCompile(`\}\s*while\s*\(`)
 	if !endWhileLoopReg.MatchString(lineContent) {
 		errMsg = fmt.Errorf("A 'do-while' loop should have 'while' on the same line as the closing brace")
@@ -72,4 +71,3 @@ func handleDoWhile(lineContent string) (bool, error) {
 
 	return true, nil
 }
-
