@@ -12,7 +12,7 @@ import (
 
 func indentation(filename string) (bool, error) {
  var err error
- var err_msg Msg
+ var err_msg displayStr
 
  openFile, err := os.Open(filename)
  scanFile := bufio.NewScanner(openFile)
@@ -53,7 +53,7 @@ inSwitchStatement := false
       has_spaces = hasLeadingSpaces(lineContent)
       if has_spaces {
         err_msg.Main = fmt.Sprintf("Line %d contains a leading space, consider removing it or using tabs", line_number)
-        ErrorDisplay(err_msg)
+        errorDisplay(err_msg)
       }
       var foundIndent, expectedIndent int
       // Switch statements are the only ones with an exception.
@@ -85,7 +85,7 @@ inSwitchStatement := false
       }
       if foundIndent != checkIndent {
         err_msg.Main = fmt.Sprintf("Expected %d tabs found %d tabs at line %d", indentLevel, foundIndent, line_number)
-        ErrorDisplay(err_msg)
+        errorDisplay(err_msg)
       }
 
       indentLevel = expectedIndent

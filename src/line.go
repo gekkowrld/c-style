@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func CheckLineLenght(filename string, lineLenght int) (bool, error)  {
+func checkLineLenght(filename string, lineLenght int) (bool, error)  {
   var all_errors error
 
   openFile, err := os.Open(filename)
@@ -23,10 +23,10 @@ func CheckLineLenght(filename string, lineLenght int) (bool, error)  {
     line_number++
     line_lenght := len(scanFile.Text())
     if line_lenght > lineLenght {
-      var err_msg Msg
+      var err_msg displayStr
       err_msg.Main = fmt.Sprintf("[%s:%d]:: Line longer than %d characters, it is %d characters", filename, line_number,lineLenght, line_lenght)
-      err_msg.Extra = fmt.Sprintf("%s", scanFile.Text())
-      InfoDisplay(err_msg)
+      err_msg.Extra = fmt.Sprintf("Content: %s", scanFile.Text())
+      infoDisplay(err_msg)
     }
   }
 

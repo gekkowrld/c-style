@@ -19,7 +19,7 @@ var styleCmd = &cobra.Command{
 	Short: "Check if the code complies with the coding style",
 
 	Run: func(cmd *cobra.Command, args []string) {
-    indentation("/home/gekkowrld/code/betty/ninde_test.c")
+    bracesPlacement(args[0])
 	},
 }
 

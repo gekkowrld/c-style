@@ -7,7 +7,6 @@ package main
 
 import "github.com/gekkowrld/betty/src"
 
-
 func main() {
 	src.Execute()
 }

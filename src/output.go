@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-type Msg struct {
+type displayStr struct {
   Main string
   Extra string
 }
 
-func InfoDisplay(msg Msg) { 
+func infoDisplay(msg displayStr) { 
   if FlagsPassed.Verbose {
     fmt.Printf("\nINFO:\n%s\n%s\n", msg.Main, msg.Extra)
   }else if FlagsPassed.Quiet {
@@ -19,7 +19,7 @@ func InfoDisplay(msg Msg) {
   }
 }
 
-func ErrorDisplay(msg Msg)  {   
+func errorDisplay(msg displayStr)  {
   if FlagsPassed.Verbose {
     fmt.Printf("\nERROR:\n%s\n%s\n", msg.Main, msg.Extra)
   }else if FlagsPassed.Quiet {
@@ -29,7 +29,7 @@ func ErrorDisplay(msg Msg)  {
   }
 }
 
-func SuccessDisplay(msg Msg)  {
+func successDisplay(msg displayStr)  {
   if FlagsPassed.Verbose {
     fmt.Printf("\nSuccess:\n%s\n%s\n", msg.Main, msg.Extra)
   }else if FlagsPassed.Quiet {
