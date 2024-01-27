@@ -106,7 +106,9 @@ func handleSwitchIndent(lineContent string, indentLevel int) (int, bool) {
 		indentLevel++
 	} else if strings.Contains(lineContent, "}") {
 		// Decrease the indent level when the closing brace is encountered
-		indentLevel--
+		if indentLevel > 0 {
+			indentLevel--
+		}
 		stillInSwitch = false
 	}
 
@@ -134,7 +136,9 @@ func isIndentCorrect(lineContent string, expectedIndent int) (int, int) {
 		if t == '\x7B' {
 			expectedIndent++
 		} else if t == '\x7D' {
-			expectedIndent--
+			if expectedIndent > 0 {
+				expectedIndent--
+			}
 		}
 	}
 
