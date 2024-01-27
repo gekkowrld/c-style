@@ -61,8 +61,7 @@ var styleCmd = &cobra.Command{
 			passedArg := args[0]
 			passedArg, _ = filepath.Abs(passedArg)
 			if fileExists(passedArg) {
-				//	callRelevantFunctions(passedArg)
-				handleFunction(passedArg)
+				callRelevantFunctions(passedArg)
 			}
 
 		} else if recursiveFlag {
@@ -139,6 +138,7 @@ func callRelevantFunctions(filename string) {
 	bracesPlacement(filename)
 	checkLineLenght(filename, flagsPassed.Line)
 	handleFunction(filename)
+	handleComment(filename)
 }
 
 func fileExists(fileName string) bool {
