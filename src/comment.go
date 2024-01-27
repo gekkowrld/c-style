@@ -43,7 +43,7 @@ func handleMultiLineComment(filename string) []string {
 			start_c = replaceStartStr.ReplaceAllString(start_c, "")
 			if len(strings.TrimSpace(start_c)) != 0 {
 				err_msg.Main = fmt.Sprintf("Block comments use a leading /* on a separate line. mv %d -> %d?", lineNumber, (lineNumber + 1))
-				err_msg.Extra = fmt.Sprintf("Content:\n\t%s", start_c)
+				err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", start_c)
 				infoDisplay(err_msg)
 			}
 			continue
@@ -60,6 +60,16 @@ func handleMultiLineComment(filename string) []string {
 			inAComment = false
 			// Add a "novel" delimeter
 			commentLine = append(commentLine, "-->====<--")
+
+			end_c := strings.TrimSpace(lineContent)
+			replaceStartStr := regexp.MustCompile(`(?mi)[\*]+\/`)
+			end_c = replaceStartStr.ReplaceAllString(end_c, "")
+			if len(strings.TrimSpace(end_c)) != 0 {
+				err_msg.Main = fmt.Sprintf("Block comments use a trailing */ on a separate line. mv %d -> %d?", lineNumber, (lineNumber + 1))
+				err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", end_c)
+				infoDisplay(err_msg)
+			}
+
 			continue
 		}
 
