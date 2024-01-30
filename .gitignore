@@ -20,3 +20,6 @@ go.work
 # Any C file used for testing purpose
 *_test.c
 *_test.h
+
+# Build files
+betty

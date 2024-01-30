@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -73,7 +74,7 @@ var styleCmd = &cobra.Command{
 		if argsPassed > 0 {
 			passedArg := args[0]
 			passedArg, _ = filepath.Abs(passedArg)
-			if fileExists(passedArg) {
+			if unHiddenFileExists(passedArg) {
 				callRelevantFunctions(passedArg)
 			}
 
@@ -127,7 +128,7 @@ func processFilesRecursively(dirPath string) error {
 		fileExt := filepath.Ext(fullPath)
 		requireFileExt := regexp.MustCompile(`^\.[hcHC]$`)
 
-		if fileExists(fullPath) && requireFileExt.MatchString(fileExt) {
+		if unHiddenFileExists(fullPath) && requireFileExt.MatchString(fileExt) {
 			cwd, _ := os.Getwd()
 			relative_path, _ := filepath.Rel(cwd, fullPath)
 			if !flagsPassed.Quiet {
@@ -153,11 +154,12 @@ func callRelevantFunctions(filename string) {
 	checkLineLenght(filename, flagsPassed.LineLen)
 	handleFunction(filename)
 	handleComment(filename)
+	checkHeader(filename)
 }
 
-func fileExists(fileName string) bool {
+func unHiddenFileExists(fileName string) bool {
 	info, err := os.Stat(fileName)
-	if os.IsNotExist(err) {
+	if os.IsNotExist(err) || strings.HasPrefix(fileName, ".") {
 		return false
 	}
 	return !info.IsDir()
