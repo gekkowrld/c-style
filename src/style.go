@@ -18,8 +18,9 @@ import (
 var flagsPassed struct {
 	Verbose bool
 	Quiet   bool
-	Line    int
+	LineLen int
 	Colour  bool
+	FuncLen int
 }
 
 var styleCmd = &cobra.Command{
@@ -41,9 +42,21 @@ var styleCmd = &cobra.Command{
 				errorDisplay(err_msg)
 				return
 			}
-			flagsPassed.Line = lineLength
+			flagsPassed.LineLen = lineLength
 		} else {
-			flagsPassed.Line = 80
+			flagsPassed.LineLen = 80
+		}
+		funcFlag := cmd.Flag("func")
+		if funcFlag.Changed {
+			funcLength, err := strconv.Atoi(funcFlag.Value.String())
+			if err != nil {
+				err_msg.Main = fmt.Sprintf("%v", err)
+				errorDisplay(err_msg)
+				return
+			}
+			flagsPassed.FuncLen = funcLength
+		} else {
+			flagsPassed.FuncLen = 40
 		}
 
 		if quietFlag {
@@ -77,8 +90,9 @@ func init() {
 	styleCmd.PersistentFlags().BoolP("quiet", "q", false, "Don't show ANY output")
 	styleCmd.PersistentFlags().BoolP("verbose", "v", false, "Display the output in verbose mode")
 	styleCmd.PersistentFlags().BoolP("recursive", "r", false, "Run on all the c (.c and .h) files in the current directory and its children")
-	styleCmd.PersistentFlags().Int("line", 80, "Change the line lenght to be used (defaults to 80)")
+	styleCmd.PersistentFlags().Int("line", 80, "Change the line lenght to be used")
 	styleCmd.PersistentFlags().BoolP("colour", "c", false, "Turn off colour display")
+	styleCmd.PersistentFlags().Int("func", 40, "Change the function lenght to be used")
 }
 
 func runRecursiveFlag() {
@@ -136,7 +150,7 @@ func processFilesRecursively(dirPath string) error {
 func callRelevantFunctions(filename string) {
 	indentation(filename)
 	bracesPlacement(filename)
-	checkLineLenght(filename, flagsPassed.Line)
+	checkLineLenght(filename, flagsPassed.LineLen)
 	handleFunction(filename)
 	handleComment(filename)
 }

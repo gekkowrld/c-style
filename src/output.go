@@ -17,14 +17,14 @@ func canSupportColour() bool {
 }
 
 func displayMessage(prefix string, msg displayStr, colorFunc func(format string, a ...interface{})) {
-	if flagsPassed.Verbose {
+	if flagsPassed.Verbose && msg.Extra != "" {
 		if canSupportColour() {
 			colorFunc("\n%s: %s\n%s\n", prefix, msg.Main, msg.Extra)
 		} else {
 			fmt.Printf("\n%s: %s\n%s\n", prefix, msg.Main, msg.Extra)
 		}
 	}
-	if !flagsPassed.Verbose && !flagsPassed.Quiet {
+	if (!flagsPassed.Verbose || msg.Extra == "") && !flagsPassed.Quiet {
 		if canSupportColour() {
 			colorFunc("\n%s: %s\n", prefix, msg.Main)
 		} else {
