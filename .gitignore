@@ -21,5 +21,7 @@ go.work
 *_test.c
 *_test.h
 
-# Build files
+# Build files && misc
 betty
+gh_token
+dist/
