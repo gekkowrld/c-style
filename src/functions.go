@@ -2,21 +2,15 @@ package src
 
 import (
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
 
-func handleFunction(filename string) {
+func handleFunction() {
 	var err_msg displayStr
 
-	// Read the file content
-	fileContent, err := os.ReadFile(filename)
-	if err != nil {
-		err_msg.Main = fmt.Sprintf("%v", err)
-		errorDisplay(err_msg)
-		return
-	}
+	fileContent := string(fileInfo.FileContents)
+	fileByte := fileInfo.FileContents
 
 	funcDeclarationMatching := regexp.MustCompile(`[ \t]*[\w\*]+[\s\*]+[\w\*]+[\s]*\([\w\s\,\*]+\)[\s]?\{`)
 
@@ -49,7 +43,7 @@ func handleFunction(filename string) {
 		}
 	}
 
-	declarationStr := funcDeclarationMatching.FindAll(fileContent, -1)
+	declarationStr := funcDeclarationMatching.FindAll(fileByte, -1)
 	declarationLen := len(declarationStr)
 
 	funcInAFile := len(fileContentArray)
@@ -58,7 +52,7 @@ func handleFunction(filename string) {
 		fromLocation := foundAt[i] - linesInAFunc
 		toLocation := foundAt[i]
 		if linesInAFunc > 40 {
-			err_msg.Main = fmt.Sprintf("[%s]: Function has %d lines, from line %d to line %d", filename, linesInAFunc, fromLocation, toLocation)
+			err_msg.Main = fmt.Sprintf("[%s]: Function has %d lines, from line %d to line %d", fileInfo.FileName, linesInAFunc, fromLocation, toLocation)
 			if declarationLen == funcInAFile {
 				removeEndStr := regexp.MustCompile(`[\n\v\f\r\t\x85\xA0\v\{]+`)
 				replacementStr := ""

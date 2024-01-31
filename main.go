@@ -1,11 +1,11 @@
 /*
 Copyright © 2024 Gekko Wrld
 
-A golang implementation of Holberton Betty
+A (custom) golang implementation of Holberton Betty
 */
 package main
 
-import "github.com/gekkowrld/betty/src"
+import "github.com/gekkowrld/c-style/src"
 
 func main() {
 	src.Execute()

@@ -1,4 +1,4 @@
-# Betty
+# C Style
 
 This is a custom implementation of the
 [betty coding guideline](https://github.com/alx-tools/Betty/wiki)

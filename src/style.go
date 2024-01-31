@@ -12,16 +12,26 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
 
 var flagsPassed struct {
-	Verbose bool
-	Quiet   bool
-	LineLen int
-	Colour  bool
-	FuncLen int
+	Verbose           bool
+	Quiet             bool
+	LineLen           int
+	Colour            bool
+	FuncLen           int
+	DisregardFileSize bool
+}
+
+var fileInfo struct {
+	FileContents     []byte
+	FileSize         int64
+	FileName         string
+	ReadErrors       error
+	ModificationTime time.Time
 }
 
 var styleCmd = &cobra.Command{
@@ -34,6 +44,7 @@ var styleCmd = &cobra.Command{
 		verboseFlag := cmd.Flag("verbose").Changed
 		recursiveFlag := cmd.Flag("recursive").Changed
 		colourFlag := cmd.Flag("colour").Changed
+		fileSizeFlag := cmd.Flag("bigfile").Changed
 
 		lineFlag := cmd.Flag("line")
 		if lineFlag.Changed {
@@ -69,12 +80,16 @@ var styleCmd = &cobra.Command{
 		if colourFlag {
 			flagsPassed.Colour = true
 		}
+		if fileSizeFlag {
+			flagsPassed.DisregardFileSize = true
+		}
 
 		argsPassed := len(args)
 		if argsPassed > 0 {
 			passedArg := args[0]
 			passedArg, _ = filepath.Abs(passedArg)
 			if unHiddenFileExists(passedArg) {
+				// Set up the file info before doing anything.
 				callRelevantFunctions(passedArg)
 			}
 
@@ -94,6 +109,7 @@ func init() {
 	styleCmd.PersistentFlags().Int("line", 80, "Change the line lenght to be used")
 	styleCmd.PersistentFlags().BoolP("colour", "c", false, "Turn off colour display")
 	styleCmd.PersistentFlags().Int("func", 40, "Change the function lenght to be used")
+	styleCmd.PersistentFlags().BoolP("bigfile", "b", false, "Ignore file size on large files")
 }
 
 func runRecursiveFlag() {
@@ -149,12 +165,13 @@ func processFilesRecursively(dirPath string) error {
 }
 
 func callRelevantFunctions(filename string) {
-	indentation(filename)
-	bracesPlacement(filename)
-	checkLineLenght(filename, flagsPassed.LineLen)
-	handleFunction(filename)
-	handleComment(filename)
-	checkHeader(filename)
+	setFileInfo(filename)
+	indentation()
+	bracesPlacement()
+	checkLineLenght(flagsPassed.LineLen)
+	handleFunction()
+	handleComment()
+	checkHeader()
 }
 
 func unHiddenFileExists(fileName string) bool {
@@ -171,4 +188,55 @@ func directoryExists(dirName string) bool {
 		return false
 	}
 	return info.IsDir()
+}
+
+func setFileInfo(filename string) error {
+	var err_msg displayStr
+	var err error
+	if !unHiddenFileExists(filename) {
+		err_msg.Main = fmt.Sprintf("%s doesn't exist, exiting with error 127", filename)
+		errorDisplay(err_msg)
+		return fmt.Errorf("file doesn't exist: %w", err)
+	}
+	fileContent, err := os.Open(filename)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer fileContent.Close()
+
+	_tmpfilename, err := filepath.Abs(filename)
+	if err != nil {
+		return fmt.Errorf("failed to get absolute path: %w", err)
+	}
+	fileInfo.FileName = _tmpfilename
+
+	stat, err := fileContent.Stat()
+	if err != nil {
+		return fmt.Errorf("failed to get file stats: %w", err)
+	}
+	fileInfo.FileSize = stat.Size()
+
+	if fileInfo.FileSize > 1048576 && !flagsPassed.DisregardFileSize && fileInfo.FileSize < (2097152+2) {
+		err_msg.Main = fmt.Sprintf("Your file is more than 1 MiB -> ( %d MiB )", (fileInfo.FileSize / (1024 * 1024)))
+		infoDisplay(err_msg)
+	}
+
+	if fileInfo.FileSize < (2097152+2) || flagsPassed.DisregardFileSize {
+		_tmp_content, err := os.ReadFile(filename)
+		if err != nil {
+			fileInfo.ReadErrors = err
+		}
+
+		fileInfo.FileContents = _tmp_content
+	}
+
+	if fileInfo.FileSize > (2097152+2) && !flagsPassed.DisregardFileSize {
+		err_msg.Main = fmt.Sprintf("Your file is more than 2 MiB ( %d MiB ), exiting... \n\tpass --bigfile to continue anyway", (fileInfo.FileSize / (1024 * 1024)))
+		errorDisplay(err_msg)
+		os.Exit(2)
+	}
+
+	fileInfo.ModificationTime = stat.ModTime()
+
+	return nil
 }

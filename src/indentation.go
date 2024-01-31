@@ -1,26 +1,21 @@
 package src
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
+	"strings"
 	"unicode"
 )
 
-func indentation(filename string) (bool, error) {
+func indentation() (bool, error) {
 	var err error
 	var err_msg displayStr
-	fileOPen, err := os.Open(filename)
+	str := string(fileInfo.FileContents)
 
-	fileScan := bufio.NewScanner(fileOPen)
-	fileScan.Split(bufio.ScanLines)
+	lines := strings.Split(str, "\n")
 
-	lineNumber := 0
-
-	for fileScan.Scan() {
-		lineNumber++
-		lineContent := fileScan.Text()
+	for lineNumber, line := range lines {
+		lineContent := line
 		if hasLeadingSpaces(lineContent) {
 			err_msg.Main = fmt.Sprintf("There is a leading space at %d", lineNumber)
 			err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", lineContent)

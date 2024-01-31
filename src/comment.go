@@ -1,38 +1,30 @@
 package src
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
 
-func handleComment(filename string) {
+func handleComment() {
 	// First handle multiline comment (and single line).
-	handleMultiLineComment(filename)
+	handleMultiLineComment()
 }
 
-func handleMultiLineComment(filename string) []string {
+func handleMultiLineComment() []string {
 	var err_msg displayStr
-	fileContent, err := os.Open(filename)
 	startComment := regexp.MustCompile(`(?m)^[ \t\v]*\/[\*]{1,}[\S ]+`)
 	endComment := regexp.MustCompile(`(?m)^[ \t\w\*\-\d\S]*\*\/`)
-	if err != nil {
-		err_msg.Main = fmt.Sprintf("%v", err)
-		errorDisplay(err_msg)
-	}
 
-	scanFile := bufio.NewScanner(fileContent)
-	scanFile.Split(bufio.ScanLines)
+	str := string(fileInfo.FileContents)
+
+	lines := strings.Split(str, "\n")
 
 	var commentLine []string
 	var commentTemp map[int]string
 	commentTemp = make(map[int]string)
-	lineNumber := 0
 	inAComment := false
-	for scanFile.Scan() {
-		lineContent := scanFile.Text()
+	for lineNumber, lineContent := range lines {
 		lineNumber++
 		if startComment.Match([]byte(lineContent)) && !strings.Contains(lineContent, "*/") {
 			inAComment = true

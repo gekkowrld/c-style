@@ -1,50 +1,35 @@
 package src
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
 
-func checkHeader(filename string) {
-	var err_msg displayStr
-	f, err := os.Stat(filename)
-	if err != nil {
-		err_msg.Main = fmt.Sprintf("%v", err)
-		errorDisplay(err_msg)
-	}
-	if !strings.HasPrefix(filename, ".") && strings.HasSuffix(filename, ".h") && !f.IsDir() {
-		checkForDoubleInclusion(filename)
-		checkFunctiomDefinition(filename)
+func checkHeader() {
+	if !strings.HasPrefix(fileInfo.FileName, ".") && strings.HasSuffix(fileInfo.FileName, ".h") {
+		checkForDoubleInclusion()
+		checkFunctiomDefinition()
 	}
 
 }
 
-func checkForDoubleInclusion(filename string) {
+func checkForDoubleInclusion() {
 	var err_msg displayStr
-	openFile, err := os.Open(filename)
-	if err != nil {
-		err_msg.Main = fmt.Sprintf("%v", err)
-		errorDisplay(err_msg)
-	}
 
 	isProtected := false
 	endIfReg := regexp.MustCompile(`(?m)^[ \t]*\#endif`)
 	ifndefReg := regexp.MustCompile(`(?m)^[ \t]*\#ifndef[ \t]{1,}[\S]+`)
 	defineReg := regexp.MustCompile(`(?m)^[ \t]*\#define[ \t]{1,}[\S]+`)
 	emptyLineReg := regexp.MustCompile(`^[\s]*$`)
-	lineNumber := 0
 	isIfDefCalled := false
 	endifFound := 1
 	firstEndIf := false
 
-	scanFile := bufio.NewScanner(openFile)
-	scanFile.Split(bufio.ScanLines)
+	str := string(fileInfo.FileContents)
+	lines := strings.Split(str, "\n")
 
-	for scanFile.Scan() {
-		lineContent := scanFile.Text()
+	for lineNumber, lineContent := range lines {
 		lineNumber++
 
 		// Make sure that protection is off, else just don't flip it.
@@ -89,23 +74,15 @@ func checkForDoubleInclusion(filename string) {
 	}
 }
 
-func checkFunctiomDefinition(filename string) {
+func checkFunctiomDefinition() {
 	var err_msg displayStr
 	bareFunctionReg := regexp.MustCompile(`(?m)^[ \t]*[\S]+[ ]{1,}[\S]+[ ]*\([ \S]*\)`)
 	correctDeclarationReg := regexp.MustCompile(`(?m)^[ \t]*[\S]+[ ]{1,}[\S]+[ ]*\([ \S]*\)[ ]*;`)
 
-	openFile, err := os.Open(filename)
-	if err != nil {
-		err_msg.Main = fmt.Sprintf("%v", err)
-		errorDisplay(err_msg)
-	}
+	str := string(fileInfo.FileContents)
+	lines := strings.Split(str, "\n")
 
-	fileScan := bufio.NewScanner(openFile)
-	fileScan.Split(bufio.ScanLines)
-	lineNumber := 0
-
-	for fileScan.Scan() {
-		lineContent := fileScan.Text()
+	for lineNumber, lineContent := range lines {
 		lineNumber++
 
 		if bareFunctionReg.MatchString(lineContent) && !correctDeclarationReg.MatchString(lineContent) {

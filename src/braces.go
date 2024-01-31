@@ -1,26 +1,20 @@
 package src
 
 import (
-	"bufio"
 	"fmt"
-	"os"
 	"regexp"
 	"strings"
 )
 
-func bracesPlacement(filename string) {
+func bracesPlacement() {
 
-	line_number := 0
 	var err_msg displayStr
-	// Open a file
-	openFile, _ := os.Open(filename)
+	str := string(fileInfo.FileContents)
 
-	scanFile := bufio.NewScanner(openFile)
-	scanFile.Split(bufio.ScanLines)
+	lines := strings.Split(str, "\n")
 
-	for scanFile.Scan() {
+	for line_number, lineContent := range lines {
 		line_number++
-		lineContent := scanFile.Text()
 		bracesRegex := regexp.MustCompile(`[\{\}]`)
 		containsBrace := bracesRegex.MatchString(lineContent)
 		if containsBrace {
