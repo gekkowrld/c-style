@@ -10,12 +10,8 @@ import (
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "betty",
-	Short: "A coding style by Holberton School",
-	Long: `An opinionated coding style by Holberton School.
-Inspired by the Linux Kernel Coding Style with modifications.
-
-When in doubt please refer to the ALX Betty Wiki as the authoriative manual.`,
+	Use:   "c-style",
+	Short: "A coding style inspired by Holberton School",
 }
 
 func Execute() {
