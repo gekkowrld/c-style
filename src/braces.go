@@ -8,7 +8,6 @@ import (
 
 func bracesPlacement() {
 
-	var err_msg displayStr
 	str := string(fileInfo.FileContents)
 
 	lines := strings.Split(str, "\n")
@@ -21,15 +20,10 @@ func bracesPlacement() {
 			if isLoneBracket(lineContent) {
 				continue
 			}
-			_, err := handleDoWhile(lineContent)
-			if err != nil {
-				err_msg.Main = fmt.Sprintf("At line %d -> %v", line_number, err)
-				errorDisplay(err_msg)
-				continue
-			}
 
 		}
 	}
+      handleDoWhile()
 }
 
 func isLoneBracket(lineContent string) bool {
@@ -48,21 +42,27 @@ func isLoneBracket(lineContent string) bool {
 	return false
 }
 
-func handleDoWhile(lineContent string) (bool, error) {
-	var errMsg error
+func handleDoWhile() {
+  var err_msg displayStr
+  fileContent := string(fileInfo.FileContents)
+  linesCont := strings.Split(fileContent, "\n")
 	doWhileLineRegex := regexp.MustCompile(`\bdo\s*\{`)
-	if !doWhileLineRegex.MatchString(lineContent) && strings.Contains(lineContent, "do") {
-		errMsg = fmt.Errorf("A 'do' should have an opening brace on the same line")
-		return true, errMsg
-	}
-
-	// Check if 'while' is on the same line as the closing brace
-	// Will never be called, should check up on it though
 	endWhileLoopReg := regexp.MustCompile(`\}\s*while\b`)
-	if !endWhileLoopReg.MatchString(lineContent) && strings.Contains(lineContent, "while") {
-		errMsg = fmt.Errorf("A 'do-while' loop should have 'while' on the same line as the closing brace")
-		return false, errMsg
-	}
 
-	return true, nil
+  isDoCalled := false
+  lineNumber := 0
+
+  for _, lineCont := range(linesCont){
+    lineNumber++
+    if doWhileLineRegex.MatchString(lineCont){
+      isDoCalled = true
+    }
+    if isDoCalled && !endWhileLoopReg.MatchString(lineCont) && strings.Contains(lineCont, "while"){
+      err_msg.Main = fmt.Sprintf("Closing while loop should be on the same line as the braces, mv while %d -> %d", lineNumber, (lineNumber-1))
+      err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", lineCont)
+      errorDisplay(err_msg)
+      isDoCalled = false
+    }
+  }
+
 }

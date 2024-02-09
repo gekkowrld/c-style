@@ -13,12 +13,15 @@ func indentation() (bool, error) {
 	str := string(fileInfo.FileContents)
 
 	lines := strings.Split(str, "\n")
+  lineNumber := 0
 
-	for lineNumber, line := range lines {
+	for _, line := range lines {
+    lineNumber++
 		lineContent := line
 		if hasLeadingSpaces(lineContent) {
 			err_msg.Main = fmt.Sprintf("There is a leading space at %d", lineNumber)
-			err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", lineContent)
+      dispCont := strings.ReplaceAll(lineContent, " ", "⬤")
+			err_msg.Extra = fmt.Sprintf("Content:\n\t==> %s", dispCont)
 			infoDisplay(err_msg)
 		}
 	}
