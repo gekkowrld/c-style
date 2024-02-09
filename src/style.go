@@ -7,12 +7,15 @@ package src
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"crypto/sha1"
 
 	"github.com/spf13/cobra"
 )
@@ -32,6 +35,11 @@ var fileInfo struct {
 	FileName         string
 	ReadErrors       error
 	ModificationTime time.Time
+	FileHash         []byte
+}
+
+var internalFlags struct {
+	OutputCalled bool
 }
 
 var styleCmd = &cobra.Command{
@@ -147,10 +155,21 @@ func processFilesRecursively(dirPath string) error {
 		if unHiddenFileExists(fullPath) && requireFileExt.MatchString(fileExt) {
 			cwd, _ := os.Getwd()
 			relative_path, _ := filepath.Rel(cwd, fullPath)
+			setFileInfo(fullPath)
 			if !flagsPassed.Quiet {
-				fmt.Printf("======== %s ========\n", relative_path)
+				fmt.Printf("\n========[%x] Begin %s ========\n", fileInfo.FileHash[:5], relative_path)
 			}
 			callRelevantFunctions(fullPath)
+			if !internalFlags.OutputCalled {
+				var err_msg = displayStr{
+					Main: "No problem found in here!, you are good to go!\n",
+				}
+				successDisplay(err_msg)
+			}
+			internalFlags.OutputCalled = false
+			if !flagsPassed.Quiet {
+				fmt.Printf("\n========[%x] End %s =======\n", fileInfo.FileHash[:4], relative_path)
+			}
 		}
 
 		if directoryExists(fullPath) {
@@ -165,7 +184,6 @@ func processFilesRecursively(dirPath string) error {
 }
 
 func callRelevantFunctions(filename string) {
-	setFileInfo(filename)
 	indentation()
 	bracesPlacement()
 	checkLineLenght(flagsPassed.LineLen)
@@ -237,6 +255,12 @@ func setFileInfo(filename string) error {
 	}
 
 	fileInfo.ModificationTime = stat.ModTime()
+
+	newHash := sha1.New()
+	if _, err := io.Copy(newHash, fileContent); err != nil {
+		fileInfo.ReadErrors = err
+	}
+	fileInfo.FileHash = newHash.Sum(nil)
 
 	return nil
 }

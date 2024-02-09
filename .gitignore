@@ -23,5 +23,6 @@ go.work
 
 # Build files && misc
 betty
+c-style
 gh_token
 dist/
